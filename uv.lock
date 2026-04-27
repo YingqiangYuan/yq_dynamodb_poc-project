@@ -82,6 +82,18 @@ css = [
 ]
 
 [[package]]
+name = "boto-session-manager"
+version = "1.8.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "boto3" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/67/7d/be013c8b6b8edf2afbc063bc393feac64d107f598f3284d99278a4ffb6ff/boto_session_manager-1.8.1.tar.gz", hash = "sha256:68f8cd1f60ab7e245875caacbc58416830f0c6dc5562ed9cbea6a55db100382f", size = 40374, upload-time = "2025-03-14T19:32:52.79Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/fc/b3e3318a8fe99b3b7631ae54faee3294b8e3dcc74daa037010aff305d986/boto_session_manager-1.8.1-py3-none-any.whl", hash = "sha256:ca73b7356cc6af626a9794bc36a44d998312cb4686f5c408d45603cce3e47323", size = 33736, upload-time = "2025-03-14T19:32:51.767Z" },
+]
+
+[[package]]
 name = "boto3"
 version = "1.42.97"
 source = { registry = "https://pypi.org/simple" }
@@ -1058,6 +1070,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pynamodb-session-manager"
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "boto-session-manager" },
+    { name = "botocore" },
+    { name = "pynamodb" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7b/dd/cb46abb3788efed32395bd111431c011987d22ca20760d7bb8e96e5b39cc/pynamodb_session_manager-0.1.2.tar.gz", hash = "sha256:3435f1a7eadcd6479087a02108b758eea74e8d9d5b38310cd6b0831502e2e169", size = 10693, upload-time = "2025-06-27T14:41:23.683Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/32/6029da7d50e497efb0ab58989a30d7a53ed9f60287572c4af3d4be94a79d/pynamodb_session_manager-0.1.2-py3-none-any.whl", hash = "sha256:864b296d79216538c14652a04281ede99120dd8bb9506f55810abb6727acc009", size = 10566, upload-time = "2025-06-27T14:41:22.8Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "8.4.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1558,9 +1584,11 @@ name = "yq-dynamodb-poc"
 version = "0.1.1"
 source = { editable = "." }
 dependencies = [
+    { name = "boto-session-manager" },
     { name = "boto3" },
     { name = "boto3-stubs", extra = ["dynamodb"] },
     { name = "pynamodb" },
+    { name = "pynamodb-session-manager" },
 ]
 
 [package.optional-dependencies]
@@ -1590,6 +1618,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "boto-session-manager", specifier = ">=1.8.1,<2.0.0" },
     { name = "boto3", specifier = ">=1.42.95,<2.0.0" },
     { name = "boto3-stubs", extras = ["dynamodb"], specifier = ">=1.42.95,<2.0.0" },
     { name = "docfly", marker = "extra == 'doc'", specifier = "==3.0.3" },
@@ -1600,6 +1629,7 @@ requires-dist = [
     { name = "pygithub", marker = "extra == 'mise'", specifier = ">=2.8.0,<3.0.0" },
     { name = "pygments", marker = "extra == 'doc'", specifier = ">=2.18.0,<3.0.0" },
     { name = "pynamodb", specifier = ">=6.1.0,<7.0.0" },
+    { name = "pynamodb-session-manager", specifier = ">=0.1.2,<1.0.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.2.2,<9.0.0" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=6.0.0,<7.0.0" },
     { name = "rich", marker = "extra == 'dev'", specifier = ">=13.8.1,<14.0.0" },
