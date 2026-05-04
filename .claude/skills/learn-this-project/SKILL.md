@@ -29,6 +29,68 @@ Every example follows the same skeleton: pynamodb's
 Once that clicks, every later folder is just adding features on top of
 that base.
 
+## Important context — what this repo is *not*
+
+Before diving in, make sure the student understands one thing this
+repo deliberately does not spell out: **`pynamodb` is a third-party
+Python ORM, not "the DynamoDB API"**. DynamoDB itself has no database
+connection, no wire protocol of its own — it is a **REST API**. Every
+"database call" you see in this repo is, underneath, an HTTPS POST to
+a DynamoDB endpoint with a JSON body. That stateless, connection-free
+design is a big part of why DynamoDB scales the way it does
+(see [dynamodb-background.md](dynamodb-background.md)).
+
+What `pynamodb` does is wrap that REST API in a Python class-based
+interface. Without it, the same operations still work — you would
+hand-build the JSON request and call `boto3` (AWS's first-party SDK)
+directly, and the code would expand to roughly 3× the size. `pynamodb`
+is what is called an **ORM** (Object-Relational Mapper): you may need
+to define this term for the student. It lets you declare a Python
+class whose attributes map to DynamoDB row attributes, and translates
+method calls (`save()`, `query()`, `update()`) into the right
+underlying API request.
+
+When a student finishes this repo they should be able to say "I now
+know one elegant way to use DynamoDB from Python", **not** "I now know
+DynamoDB". The official source of truth is the boto3 / AWS API
+reference. Reading those docs (with help from an AI assistant) is the
+recommended next step — this repo is the on-ramp; the AWS docs are
+the road.
+
+Make this point explicitly when:
+
+- The student first sees `Card.save()` or `Card.query(...)` in 00 —
+  flag that this is a wrapper, not the bare API.
+- `examples/04-batch-operations/s03_batch_with_unprocessed.py` drops
+  down to boto3 — point at it as a peek under the wrapping.
+- The student asks "is this how AWS recommends I use DynamoDB?" or
+  "is pynamodb the official client?" — answer: no, it is one popular
+  third-party ORM; the official AWS Python SDK is boto3, and even
+  boto3 is itself a wrapper over the JSON REST API.
+
+For the **operations covered by this repo** (CRUD, batch, query/scan,
+transactions), the boto3 reference pages are:
+
+| pynamodb call | underlying API |
+|---|---|
+| `instance.save()` | [PutItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/put_item.html) |
+| `Model.get(...)` | [GetItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/get_item.html) |
+| `instance.update(actions=[...])` | [UpdateItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/update_item.html) |
+| `instance.delete()` | [DeleteItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/delete_item.html) |
+| `with Model.batch_write() as batch:` | [BatchWriteItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/batch_write_item.html) |
+| `Model.batch_get([...])` | [BatchGetItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/batch_get_item.html) |
+| `Model.query(...)` | [Query](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/query.html) |
+| `Model.scan(...)` | [Scan](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/scan.html) |
+| `with TransactWrite(...) as tx:` | [TransactWriteItems](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/transact_write_items.html) |
+| `TransactGet(...)` | [TransactGetItems](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/transact_get_items.html) |
+
+The boto3 service index lives at
+<https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb.html>
+— hand the student that link and tell them every API DynamoDB exposes
+is on that page. **Do not** pre-emptively lecture about
+table-management / describe / index-list endpoints; they are out of
+scope here. Stick to the operation links above.
+
 ## Interaction protocol
 
 This skill has **two modes**:

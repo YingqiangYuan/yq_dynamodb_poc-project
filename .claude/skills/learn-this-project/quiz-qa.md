@@ -6,6 +6,57 @@ modelling choices, and the access patterns the examples demonstrate —
 not DynamoDB's internal architecture (for that, see
 [dynamodb-background.md](dynamodb-background.md)).
 
+## Before you take the quiz: an important context note
+
+`pynamodb` is a third-party Python **ORM** (Object-Relational Mapper),
+**not** "the DynamoDB API" itself. DynamoDB has no database connection
+or wire protocol of its own — it is a **REST API**: every "database
+call" in this repo is ultimately an HTTPS POST to a DynamoDB endpoint
+with a JSON body. That stateless, connection-free design is a major
+reason DynamoDB scales the way it does
+(see [dynamodb-background.md](dynamodb-background.md)).
+
+What `pynamodb` does is wrap that REST API in a Python class-based
+interface. Without it, the same operations still work — you would
+hand-build the JSON request and call `boto3` (AWS's first-party SDK)
+directly, and the code would expand to roughly 3× the size. `pynamodb`
+is currently the most elegant way to use DynamoDB from Python, but it
+is **one** way, not **the** way.
+
+When you finish this quiz, you should be able to say "I know one
+elegant way to use DynamoDB from Python", **not** "I know DynamoDB".
+The authoritative source is the boto3 / AWS DynamoDB API reference.
+Spending half an hour reading the boto3 client pages for the
+operations below — possibly with an AI assistant alongside — is the
+recommended next step. You will see exactly what pynamodb is hiding,
+and it will demystify the rest of the AWS API surface in the process.
+
+### Underlying API for the operations covered here
+
+| pynamodb call | underlying DynamoDB / boto3 API |
+|---|---|
+| `instance.save()` | [PutItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/put_item.html) |
+| `Model.get(...)` | [GetItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/get_item.html) |
+| `instance.update(actions=[...])` | [UpdateItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/update_item.html) |
+| `instance.delete()` | [DeleteItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/delete_item.html) |
+| `with Model.batch_write() as batch:` | [BatchWriteItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/batch_write_item.html) |
+| `Model.batch_get([...])` | [BatchGetItem](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/batch_get_item.html) |
+| `Model.query(...)` | [Query](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/query.html) |
+| `Model.scan(...)` | [Scan](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/scan.html) |
+| `with TransactWrite(...) as tx:` | [TransactWriteItems](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/transact_write_items.html) |
+| `TransactGet(...)` | [TransactGetItems](https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb/client/transact_get_items.html) |
+
+The boto3 DynamoDB service index — entry point to every operation
+DynamoDB exposes — lives at
+<https://docs.aws.amazon.com/boto3/latest/reference/services/dynamodb.html>.
+
+(Table-management calls like `CreateTable` and `DescribeTable` are
+also REST APIs in the same reference, but they are intentionally **not**
+linked here — the ORM is not what you reach for to manage table
+lifecycle, so we keep this quiz focused on item operations and access
+patterns. Read those endpoints in the boto3 docs separately when you
+need them.)
+
 ## Index
 
 - [Category 1: pynamodb Skeleton & Project Conventions](#category-1-pynamodb-skeleton--project-conventions) — Q1–Q5
