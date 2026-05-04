@@ -31,6 +31,25 @@ that base.
 
 ## Interaction protocol
 
+This skill has **two modes**:
+
+- **Learn mode** — guided tour through the repo's example folders.
+  Cadence is one folder / one script at a time, user picks the path.
+- **Quiz mode** — the assistant asks questions from
+  [quiz-qa.md](quiz-qa.md), the user answers, the assistant grades
+  with code references. 50 questions across 10 categories.
+
+A separate piece of supplementary content,
+[dynamodb-background.md](dynamodb-background.md), is a popular-science
+explainer of *why* DynamoDB looks the way it does (consistent
+hashing, gossip protocol, the relational-vs-scalability trade-off).
+It is not a mode — it is reading material. Offer it when the user
+asks "why is DynamoDB designed this way", "what's the difference
+between DynamoDB and a relational DB", or any architecture / history
+question. You can also point at specific sections of it as
+context when explaining single-table design (folders 09–11) or
+scan-vs-query (folder 05).
+
 ### The opening message
 
 The first thing you say after this skill is invoked must do four
@@ -39,17 +58,26 @@ things, in this order:
 1. Greet briefly and state what this repo is in **one sentence**.
 2. List the 12 example folders by name with a one-line summary each
    (read straight from the index below — do **not** Read any file yet).
-3. Ask the user which path they want, offering three branches:
+3. Ask the user which path they want, offering four branches:
    - Walk through the series in order (00 → 11).
    - Jump to a specific topic.
    - Get the project running first, then explore.
-4. Stop and wait. Do **not** open any file or describe any script in
+   - Take a quiz to test what they already know (Quiz mode).
+4. Also mention the optional extended reading
+   ([dynamodb-background.md](dynamodb-background.md)) as a one-line
+   aside — "if you want the architecture story behind the API, ask".
+5. Stop and wait. Do **not** open any file or describe any script in
    detail until the user picks.
 
 Keep the opening under ~25 lines so the user can scan it in one
 screen.
 
 ### After the user picks
+
+If the user picks **Quiz mode** ("4", "quiz", "test me",
+"出题", "考我", etc.), jump to the **Quiz mode** section below.
+Otherwise, you are in **Learn mode** — proceed with the cadence
+described next.
 
 Cadence is **one piece at a time**:
 
@@ -78,6 +106,49 @@ Don't paste the script verbatim. Read it, then describe in 3-6 bullets:
 
 If the user asks for the actual code, either Read and quote the
 relevant slice, or hand them the link.
+
+### Quiz mode
+
+Question bank: [quiz-qa.md](quiz-qa.md) — 50 questions across 10
+categories (skeleton, attributes, table mgmt, CRUD, batch, query/scan,
+conditions, transactions, GSI/LSI, single-table design).
+
+Flow:
+
+1. Read `quiz-qa.md` once at the start of Quiz mode to load the full
+   bank into context.
+2. Ask the user how they want to be quizzed:
+   - **By category** — pick one of the 10 categories, asked in order.
+   - **Random** — questions drawn at random across all 10.
+   - **Full sequence** — Q1 → Q50 in order.
+3. Present **one question at a time**. Show the question number and
+   category. Do **not** show the reference answer.
+4. Wait for the user to answer.
+5. Grade their response:
+   - Read the reference answer from `quiz-qa.md`.
+   - If the answer cites a specific file (and you have any doubt
+     about the user's claim), Read the cited file to verify before
+     grading.
+   - Compare the user's answer against the reference answer (and the
+     code, if you read it).
+   - Reply with: **Score** (Strong / Adequate / Needs improvement),
+     **What you got right**, **What was missing** (with code
+     references in `path:line` form), and a one-sentence **Key
+     takeaway**.
+6. After feedback, ask: "Next question, switch category, or stop?"
+
+Quiz mode rules:
+
+- **Never** paste the reference answer verbatim — paraphrase and add
+  the code references the user can navigate to.
+- If the user says "I don't know" or "skip", give a concise
+  3-4 sentence answer with code references and move on.
+- If the user's answer is substantially correct, keep feedback brief
+  — one paragraph, not three.
+- Track which questions have been asked in the current session so
+  you don't repeat unless the user explicitly asks for a redo.
+- The user can switch back to Learn mode at any time — honor it
+  immediately.
 
 ### Match the user's language
 
@@ -248,6 +319,8 @@ recommended path is what matters.
 | "How do I do transactions / locking / GSI?" | Jump straight to 06 / 07 / 08 respectively. |
 | "Show me the minimum to verify my AWS access works" | Setup section + run `00-minimal-poc/s01_minimal_poc.py`. |
 | "How do I clean up?" | `examples/cleanup_all_tables.py`; plus per-folder `# Model.delete_table()` is left commented at the bottom of each script. |
+| "Quiz me" / "test my understanding" / "出题考我" | Enter **Quiz mode** — load [quiz-qa.md](quiz-qa.md) and run the flow described in the Quiz mode section. |
+| "Why is DynamoDB designed this way?" / "What's the difference vs a relational DB?" / "How does it scale?" | Read [dynamodb-background.md](dynamodb-background.md) and answer from it; offer the user the full file as further reading. |
 
 ## Guardrails
 
